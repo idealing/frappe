@@ -199,30 +199,22 @@ class SMTPServer:
 			raise frappe.OutgoingEmailError(err_msg)
 
 		try:
-			# if self.use_tls and not self.port:
-			# 	self.port = 587
-			#
-			# self._sess = smtplib.SMTP(cstr(self.server or ""),
-			# 	cint(self.port) or None)
-			#
-			# if not self._sess:
-			# 	err_msg = _('Could not connect to outgoing email server')
-			# 	frappe.msgprint(err_msg)
-			# 	raise frappe.OutgoingEmailError(err_msg)
-			#
-			# if self.use_tls:
-			# 	self._sess.ehlo()
-			# 	self._sess.starttls()
-			# 	self._sess.ehlo()
+			if self.use_tls and not self.port:
+				self.port = 587
 
-			if self.use_tls:
-				self.sess = smtplib.SMTP_SSL((self.server or "").encode('utf-8'),
-											 cint(self.port) or None)
+			self._sess = smtplib.SMTP((self.server or "").encode('utf-8'),
+				cint(self.port) or None)
 
 			if not self._sess:
-				err_msg = _("Could not connect to outgoing email server")
+				err_msg = _('Could not connect to outgoing email server')
 				frappe.msgprint(err_msg)
 				raise frappe.OutgoingEmailError(err_msg)
+
+			if self.use_tls:
+				self._sess.ehlo()
+				self._sess.starttls()
+				self._sess.ehlo()
+
 			if self.login and self.password:
 				ret = self._sess.login(str(self.login or ""), str(self.password or ""))
 
